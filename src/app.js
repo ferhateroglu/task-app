@@ -7,7 +7,7 @@ const app = express();
 
 app.use(express.json());//post tan json almak için kullanılır
 
-//get users
+//list users 
 app.get('/users', async (req,res) =>{
     const users = await User.find({});
     try{
@@ -17,7 +17,7 @@ app.get('/users', async (req,res) =>{
     }
 });
 
-//get users/:id //get request de body olmaz params. olur //console.log(req.params);// /users/123 sorgusunu döner //console.log(req.query);// /users/:id=1234 sorgusunu döner
+// list user //get request de body olmaz params. olur //console.log(req.params);// /users/123 sorgusunu döner //console.log(req.query);// /users/:id=1234 sorgusunu döner
 app.get('/users/:id', async (req,res) =>{
     const { id }  = req.params;
     try{
@@ -57,8 +57,7 @@ app.get('/tasks/:id', async (req,res) =>{
     }
 });
 
-//get user
-
+//task save
 app.post('/tasks', async (req, res)=>{
     const task = new Task(req.body);
     try{
@@ -69,6 +68,7 @@ app.post('/tasks', async (req, res)=>{
     }
 });
 
+//user save
 app.post('/users', async (req,res) =>{
     const user = new User(req.body);
     try{
@@ -76,6 +76,45 @@ app.post('/users', async (req,res) =>{
         res.status(201).send(u);
     }catch(e){
         res.status(400).send(e);
+    }
+});
+
+//user update
+app.put('/users/:id', async (req,res) =>{
+
+    const allowedUpdates = ['name', 'password', 'email'];
+    const keys = Object.keys(req.body);//body içerisindeki keyleri alır
+    const isvalid = keys.every(x => allowedUpdates.includes(x));
+    if(!isvalid) {
+        return res.status(400).send('istek geçersiz');
+    }
+
+    try{
+        const {id} = req.params;
+        const user = await User.findByIdAndUpdate(id, req.body, {new:true, runValidators: true});
+        if(user){
+            res.status(200).send(user);
+        }else{
+            res.status(404).send();
+        }
+    }catch(e){
+        res.status(500).send(e);
+    }
+});
+
+//task update
+app.put('/tasks/:id', async(req,res) =>{
+    allowedUpdates = ['de']
+    try{
+        const {id} = req.params;
+        const updatedTask = await Task.findByIdAndUpdate(id, req.body, {new: true,runValidators: true});
+        if(updatedTask){
+            req.status(200).send(updatedTask);
+        }else{
+            req.status(404).send();
+        }
+    }catch(e){
+        res.status(500).send(e);
     }
 });
 
