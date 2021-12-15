@@ -61,7 +61,7 @@ app.get('/tasks/:id', async (req,res) =>{
 app.post('/tasks', async (req, res)=>{
     const task = new Task(req.body);
     try{
-        const t = await user.save();
+        const t = await task.save();
         res.send(t);
     }catch(e){
         res.send(e);
@@ -104,7 +104,6 @@ app.put('/users/:id', async (req,res) =>{
 
 //task update
 app.put('/tasks/:id', async(req,res) =>{
-    allowedUpdates = ['de']
     try{
         const {id} = req.params;
         const updatedTask = await Task.findByIdAndUpdate(id, req.body, {new: true,runValidators: true});
@@ -112,6 +111,35 @@ app.put('/tasks/:id', async(req,res) =>{
             req.status(200).send(updatedTask);
         }else{
             req.status(404).send();
+        }
+    }catch(e){
+        res.status(500).send(e);
+    }
+});
+//user delete
+app.delete('/users/:id', async (req,res) =>{
+    try{
+        const {id} = req.params;
+        const user = await User.findByIdAndDelete(id);
+        if(user){
+            res.status(200).send(user);
+        }else{
+            res.status(404).send();
+        }
+    }catch(e){
+        res.status(500).send(e);
+    }
+});
+
+//task delete
+app.delete('/tasks/:id', async (req, res) => {
+    try{
+        const {id} = req.params;
+        const task = await Task.findByIdAndDelete(id);
+        if(task){
+            res.status(200).send(task);
+        }else{
+            res.status(404).send();
         }
     }catch(e){
         res.status(500).send(e);
