@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const Task = mongoose.model('tasks',{
     description:{
         type: String,
-        required: true
+        required: true,
+        minlength: 6
     },
     done:{
         type: Boolean,
