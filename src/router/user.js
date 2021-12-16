@@ -48,11 +48,20 @@ router.put('/users/:id', async (req,res) =>{
         return res.status(400).send('istek geçersiz');
     }
 
+
+    const {id} = req.params;
+        //const user = await User.findByIdAndUpdate(id, req.body, {new:true, runValidators: true});
+
     try{
         const {id} = req.params;
-        const user = await User.findByIdAndUpdate(id, req.body, {new:true, runValidators: true});
-        if(user){
-            res.status(200).send(user);
+        //const user = await User.findByIdAndUpdate(id, req.body, {new:true, runValidators: true});
+
+        const user = await User.findById(id);
+
+        keys.forEach(key => user[key] = req.body[key]);
+        const newUser = await user.save(); 
+        if(newUser){
+            res.status(200).send(newUser);
         }else{
             res.status(404).send();
         }
