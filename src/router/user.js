@@ -2,7 +2,7 @@ const express = require('express');
 const User = require('../models/users');
 const router = express.Router();
 
-//list users 
+//list all users 
 router.get('/users', async (req,res) =>{
     const users = await User.find({});
     try{
@@ -38,24 +38,31 @@ router.post('/users', async (req,res) =>{
     }
 });
 
+//login
+router.post('/users/login', async (req,res) =>{
+    try{
+        const { email, password} = req.body;
+        const user = await User.login(email,password);
+        res.status(200).send(user);
+    }catch(e){
+        res.status(400).send(e);
+    }
+});
+
 //update user
 router.put('/users/:id', async (req,res) =>{
 
     const allowedUpdates = ['name', 'password', 'email'];
     const keys = Object.keys(req.body);//body içerisindeki keyleri alır
+    // keys = ["name","age",password]
     const isvalid = keys.every(x => allowedUpdates.includes(x));
     if(!isvalid) {
         return res.status(400).send('istek geçersiz');
     }
-
-
-    const {id} = req.params;
         //const user = await User.findByIdAndUpdate(id, req.body, {new:true, runValidators: true});
-
     try{
         const {id} = req.params;
         //const user = await User.findByIdAndUpdate(id, req.body, {new:true, runValidators: true});
-
         const user = await User.findById(id);
 
         keys.forEach(key => user[key] = req.body[key]);
