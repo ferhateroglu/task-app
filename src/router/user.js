@@ -32,7 +32,8 @@ router.post('/users', async (req,res) =>{
     const user = new User(req.body);
     try{
         const u = await user.save();
-        res.status(201).send(u);
+        const token = await user.createToken();
+        res.status(201).send({user: u,token: token});
     }catch(e){
         res.status(400).send(e);
     }
@@ -43,7 +44,11 @@ router.post('/users/login', async (req,res) =>{
     try{
         const { email, password} = req.body;
         const user = await User.login(email,password);
-        res.status(200).send(user);
+
+        //token
+        const token = await user.createToken();
+
+        res.status(200).send({user, token});
     }catch(e){
         res.status(400).send(e);
     }

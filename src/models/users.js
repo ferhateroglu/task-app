@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require ('validator');
 const bcyrpt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const userSchema = mongoose.Schema({
     name:{
@@ -30,8 +31,23 @@ const userSchema = mongoose.Schema({
                 throw new Error('yaş 0 dan küçük olamaz');
             }
         }
-    }
+    },
+    tokens:[{
+        token:{
+            type: String,
+            required: true
+        }
+    }]
 });
+
+//create token     // statics'e obje üzerinden ulaşılır methods'a instance üzerinden ulaşılır
+userSchema.methods.createToken = async function(){
+    const user = this;
+    const token = await jwt.sign({id: user._id.toString()},'privatekey');
+    user.tokens = user.tokens.concat({token: token});
+    await user.save();
+    return token;
+}
 
 //login
 userSchema.statics.login = async (email, password) =>{
@@ -44,7 +60,7 @@ userSchema.statics.login = async (email, password) =>{
     const isMatch = await bcyrpt.compare(password, user.password);
 
     if(!isMatch) {
-        throw new  Error('Login başarısız');
+        throw new Error('Login başarısız');
     }
     return user;
 }
