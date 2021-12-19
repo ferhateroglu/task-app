@@ -1,9 +1,10 @@
 const express = require('express');
 const User = require('../models/users');
+const auth = require('../middleware/auth');
 const router = express.Router();
 
 //list all users 
-router.get('/users', async (req,res) =>{
+router.get('/users', auth, async (req,res) =>{
     const users = await User.find({});
     try{
         res.status(200).send(users)
@@ -13,22 +14,12 @@ router.get('/users', async (req,res) =>{
 });
 
 // list user //get request de body olmaz params. olur //console.log(req.params);// /users/123 sorgusunu döner //console.log(req.query);// /users/:id=1234 sorgusunu döner
-router.get('/users/:id', async (req,res) =>{
-    const { id }  = req.params;
-    try{
-        const user = await User.findById(id);
-        if(user){
-            res.status(200).send(user);
-        }else{
-            res.status(404).send();
-        }
-    }catch(e){
-        res.status(500).send(e);
-    }
+router.get('/users/me', auth, async (req,res) =>{
+    res.send(req.user);
 });
 
 //save user
-router.post('/users', async (req,res) =>{
+router.post('/users', async (req,res) =>{ 
     const user = new User(req.body);
     try{
         const u = await user.save();

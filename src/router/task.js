@@ -44,9 +44,9 @@ router.put('/tasks/:id', async(req,res) =>{
         const {id} = req.params;
         const updatedTask = await Task.findByIdAndUpdate(id, req.body, {new: true,runValidators: true});
         if(updatedTask){
-            req.status(200).send(updatedTask);
+            res.status(200).send(updatedTask);
         }else{
-            req.status(404).send();
+            res.status(404).send();
         }
     }catch(e){
         res.status(500).send(e);
